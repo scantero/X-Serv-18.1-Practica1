@@ -67,29 +67,57 @@ class practica1 (webapp.webApp):
                 #   devuelvo el formulario como una pagina html
 
                 htmlAnswer = """
-                 <form action="" method="POST">
-                    Url:<br>
-                    <input type="text" name="url" value=""><br><br>
+                <div align="center">
+                <form action="" method="POST">
+                <body bgcolor="blue/red"></body>
+                    Introduce una Url:<br>
+                    <input type="text" name="url" value=""
+                    style = "width:200px; height:50px; font-family:Comic Sans MS;
+                    border-width:thick; border-style:solid; border-color:yellow">
+                    <br><br>
                     <input type="submit" value="Submit">
+                </body>
                 </form>
                 """
+                for num in self.dic:
+                    htmlAnswer += str(num) + " = " + self.dic[num] + "<br>"
+
                 httpCode = "200 OK"
 
             else:
                 #si es el recurso /{numero}
                 #   devuelvo la pagina html asociada (o pagina de error 404)
+                if number.isdigit():
 
-                number = int(number)
+                    number = int(number)
 
-                if number in self.dic:
+                    if number in self.dic:
 
-                    htmlAnswer = ""
-                    httpCode = "302 Found\r\nLocation: " + self.dic[number]
+                        htmlAnswer = """
+                        <div align="center">
+                        <body bgcolor="blue/red">
+                        </body>
+                        """
+                        httpCode = "302 Found\r\nLocation: " + self.dic[number]
+
+                    else:
+
+                        htmlAnswer = """
+                        <div align="center">
+                        <body bgcolor="blue/red">
+                        """
+                        htmlAnswer += "Not found</body>"
+                        httpCode = "404 Not Found"
 
                 else:
 
-                    htmlAnswer = "Not found"
+                    htmlAnswer = """
+                    <div align="center">
+                    <body bgcolor="blue/red">
+                    """
+                    htmlAnswer += "Not a number</body>"
                     httpCode = "404 Not Found"
+
 
         elif method == "POST":
 
@@ -106,13 +134,29 @@ class practica1 (webapp.webApp):
             if not (body.startswith("http://") or body.startswith("https://")):
                 body = "http://" + body
 
-            short_url = 1 + len(self.dic)
-            self.dic[short_url] = body
-            self.dic_inv[body] = short_url
-            self.escribirCSV(body, short_url)
+            if not body in self.dic_inv:
 
-            htmlAnswer = body + " = " + str(short_url)
-            httpCode = "200 OK"
+                short_url = 1 + len(self.dic)
+                self.dic[short_url] = body
+                self.dic_inv[body] = short_url
+                self.escribirCSV(body, short_url)
+
+                htmlAnswer = """
+                <div align="center">
+                <body bgcolor="blue/red">
+                """
+                htmlAnswer += body + " = " + str(short_url) + "</body>"
+                httpCode = "200 OK"
+
+            else:
+
+                htmlAnswer  = """
+                <div align="center">
+                <body bgcolor="blue/red">
+                """
+                htmlAnswer += "La entrada ya existe en el diccionario...<br>"
+                htmlAnswer += body + " = " + str(self.dic_inv[body]) + "</body>"
+                httpCode = "200 OK"
 
         return httpCode, htmlAnswer
 
